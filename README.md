@@ -3,7 +3,7 @@ Modi'in's (2nd place) code in the 2018 skillz competition
 
 
 the code should be read as follows:
-First read the main method of MyBotCompetitive. This is the main method that acts out our turn. 
+First read the main method of MyBotCompetitive.doTurn. This is the main method that acts out our turn. 
 Then from there go to each method MyBotCompetitive uses. 
 BotData saves all the data and updates it
 Pushings is responsible for... well....
