@@ -1,50 +1,51 @@
-package bots.Predictions;
+package bots.goodOlBot.Predictions;
 
-import bots.Data.BotData;
-import bots.MapMethods;
+import bots.goodOlBot.Data.BotData;
+import bots.goodOlBot.Types.UpgradedPirate;
 import pirates.Location;
-import pirates.Mothership;
 import pirates.Pirate;
-import pirates.PirateGame;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class PushTowardsMothershipPrediction extends Prediction {
-    @Override
-    public void predict() {
-        List<Pirate> carryBoys = MapMethods.getCarryBoys(BotData.getInstance().game.getEnemyCapsules());
-        if (carryBoys.isEmpty()) {
-            return;
-        }
-        for (Pirate pirate : carryBoys) {
-            Location loc = nextLocationWithOffsidePush(pirate);
-            if (loc != null) {
-                System.out.println("I predict pushing offside!");
-                addPrediction(pirate, loc);
-            } else {
-                System.out.println("I don't predict offside");
-            }
-        }
+/**
+ * Represents a prediction of the enemy's moves.
+ * This feature wasn't used in the skillz competition because it was hard testing it and didn't affect enough our gameplay to make the hard work affordable.
+ */
+public abstract class Prediction {
+    public static int AUT_NUMBERING=1;
+    //the method returns
+    /**
+     * This field evaluates how much should this prediction be trusted.
+     * The field is updated according to the differences each turn between the predicted moves to the real ones.
+     */
+    protected int reliability;
+    protected int id;
+
+    public Prediction() {
+        reliability=0;
+        id=AUT_NUMBERING;
+        AUT_NUMBERING++;
     }
 
-    private static Location nextLocationWithOffsidePush(Pirate enemy) {
-        if (enemy == null)
-            return null;
-        BotData data = BotData.getInstance();
-        PirateGame game = data.game;
-        Mothership closeMs = MapMethods.closest(enemy, game.getEnemyMotherships());
+    /**
+     * Update the next location of the enemy's pirates according to the specific prediction logic
+     */
+    public abstract void predict();
 
-        List<Pirate> possiblePushers = Arrays.stream(game.getEnemyLivingPirates()).filter(pirate -> pirate.canPush(enemy)).collect(Collectors.toList());
-
-        for (Pirate friend : possiblePushers) {
-            Location locationAfterPush = enemy.location.towards(closeMs, friend.pushDistance + enemy.maxSpeed - 150); //location in 2 turns
-            if (data.isOffside(locationAfterPush, false))
-                return locationAfterPush;
+    public void update(List<UpgradedPirate>trueActions) {
+        for (UpgradedPirate upgradedPirate : trueActions) {
+            if (upgradedPirate.getNextLocation().distance(upgradedPirate.pirate.location) < BotData.getInstance().DEVIATION_LOCATIONS)
+                reliability++;
+            else
+                reliability--;
         }
 
-        return null;
+    }
 
+    public void addPrediction(Pirate pirate, Location location) {
+        UpgradedPirate upgradedPirate = BotData.getInstance().upgraded(pirate);
+        upgradedPirate.setNextLocation(location);
+        upgradedPirate.setCertainty(reliability);
+        upgradedPirate.setPredictionId(id);
     }
 }
