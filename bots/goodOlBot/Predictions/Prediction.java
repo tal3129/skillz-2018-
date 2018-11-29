@@ -28,7 +28,7 @@ public abstract class Prediction {
     }
 
     /**
-     * Receives a list of pirates that was predicted last turn, and update the reliability of the prediction accordingly
+     * Update the next location of the enemy's pirates according to the specific prediction logic
      */
     public abstract void predict();
 
