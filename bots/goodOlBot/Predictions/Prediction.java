@@ -7,9 +7,17 @@ import pirates.Pirate;
 
 import java.util.List;
 
+/**
+ * Represents a prediction of the enemy's moves.
+ * This feature wasn't used in the skillz competition because it was hard testing it and didn't affect enough our gameplay to make the hard work affordable.
+ */
 public abstract class Prediction {
     public static int AUT_NUMBERING=1;
     //the method returns
+    /**
+     * This field evaluates how much should this prediction be trusted.
+     * The field is updated according to the differences each turn between the predicted moves to the real ones.
+     */
     protected int reliability;
     protected int id;
 
@@ -19,15 +27,16 @@ public abstract class Prediction {
         AUT_NUMBERING++;
     }
 
+    /**
+     * Update the next location of the enemy's pirates according to the specific prediction logic
+     */
     public abstract void predict();
-    // receives a list of pirates that was predicted last turn, and update the reliability of the prediction accordingly
-
 
     public void update(List<UpgradedPirate>trueActions) {
         for (UpgradedPirate upgradedPirate : trueActions) {
             if (upgradedPirate.getNextLocation().distance(upgradedPirate.pirate.location) < BotData.getInstance().DEVIATION_LOCATIONS)
                 reliability++;
-             else
+            else
                 reliability--;
         }
 
